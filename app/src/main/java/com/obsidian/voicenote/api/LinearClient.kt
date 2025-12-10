@@ -11,6 +11,8 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 data class LinearTeam(val id: String, val name: String)
+data class LinearProject(val id: String, val name: String)
+data class LinearLabel(val id: String, val name: String)
 
 object LinearClient {
     private val client = OkHttpClient.Builder()
@@ -43,10 +45,81 @@ object LinearClient {
         return teams
     }
 
-    suspend fun createIssue(apiKey: String, teamId: String, title: String, description: String): String {
+    suspend fun getProjects(apiKey: String, teamId: String): List<LinearProject> {
+        val query = """
+            query {
+              team(id: "$teamId") {
+                projects {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+
+        val responseJson = executeGraphQL(apiKey, query)
+        val nodes = responseJson.getJSONObject("data")
+            .getJSONObject("team")
+            .getJSONObject("projects")
+            .getJSONArray("nodes")
+
+        val projects = mutableListOf<LinearProject>()
+        for (i in 0 until nodes.length()) {
+            val node = nodes.getJSONObject(i)
+            projects.add(LinearProject(node.getString("id"), node.getString("name")))
+        }
+        return projects
+    }
+
+    suspend fun getLabels(apiKey: String, teamId: String): List<LinearLabel> {
+        val query = """
+            query {
+              team(id: "$teamId") {
+                labels {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+
+        val responseJson = executeGraphQL(apiKey, query)
+        val nodes = responseJson.getJSONObject("data")
+            .getJSONObject("team")
+            .getJSONObject("labels")
+            .getJSONArray("nodes")
+
+        val labels = mutableListOf<LinearLabel>()
+        for (i in 0 until nodes.length()) {
+            val node = nodes.getJSONObject(i)
+            labels.add(LinearLabel(node.getString("id"), node.getString("name")))
+        }
+        return labels
+    }
+
+    suspend fun createIssue(
+        apiKey: String, 
+        teamId: String, 
+        title: String, 
+        description: String,
+        projectId: String? = null,
+        labelIds: List<String>? = null
+    ): String {
         // Escape strings for JSON
         val safeTitle = JSONObject.quote(title).drop(1).dropLast(1)
         val safeDesc = JSONObject.quote(description).drop(1).dropLast(1)
+        
+        // Build optional fields
+        val projectField = if (projectId != null && projectId.isNotBlank()) "projectId: \"$projectId\"" else ""
+        
+        val labelsField = if (labelIds != null && labelIds.isNotEmpty()) {
+             val ids = labelIds.joinToString("\", \"") { it }
+             "labelIds: [\"$ids\"]"
+        } else ""
 
         val mutation = """
             mutation {
@@ -54,6 +127,8 @@ object LinearClient {
                 teamId: "$teamId"
                 title: "$safeTitle"
                 description: "$safeDesc"
+                $projectField
+                $labelsField
               }) {
                 success
                 issue {

@@ -108,6 +108,8 @@ class RecordingService : Service() {
         
         val linearApiKey = prefs.getString("linear_api_key", "") ?: ""
         val linearTeamId = prefs.getString("linear_team_id", "") ?: ""
+        val linearProjectId = prefs.getString("linear_project_id", null)
+        val linearLabelId = prefs.getString("linear_label_id", null)
 
         if (apiKey.isBlank() || folderUriStr.isBlank()) {
             broadcastStatus("Error: Setup not complete")
@@ -133,11 +135,15 @@ class RecordingService : Service() {
                     **Tags**: ${processed.metadata.tags.joinToString(", ")}
                 """.trimIndent()
                 
+                val labelIds = if (!linearLabelId.isNullOrBlank()) listOf(linearLabelId) else null
+                
                 val issueUrl = LinearClient.createIssue(
                     apiKey = linearApiKey,
                     teamId = linearTeamId,
                     title = processed.metadata.topic,
-                    description = description
+                    description = description,
+                    projectId = linearProjectId,
+                    labelIds = labelIds
                 )
                 
                 broadcastStatus("Success! Issue created.")

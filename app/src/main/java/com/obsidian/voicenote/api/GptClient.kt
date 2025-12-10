@@ -27,7 +27,8 @@ object GptClient {
             Analyze this voice note transcription and provide:
             1. Relevant tags from ONLY these options: Product, Self-improvement, Productivity
                (include only tags that genuinely apply, can be none)
-            2. A 1-2 sentence topic summary
+            2. A crisp, consumption-ready tagline (1-2 sentences) summarizing the topic. 
+               Do not mention the speaker, the user, or "the speaker discusses". Focus purely on the content.
             
             Transcription:
             "$transcription"
