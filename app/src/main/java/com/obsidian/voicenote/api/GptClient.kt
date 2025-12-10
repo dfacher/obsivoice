@@ -13,8 +13,14 @@ import java.util.concurrent.TimeUnit
 
 data class VoiceNoteMetadata(
     val tags: List<String>,
-    val topic: String
+    val topic: String,
+    val type: NoteType = NoteType.JOURNAL
 )
+
+enum class NoteType {
+    JOURNAL,
+    TODO
+}
 
 object GptClient {
     private val client = OkHttpClient.Builder()
@@ -29,12 +35,13 @@ object GptClient {
                (include only tags that genuinely apply, can be none)
             2. A crisp, consumption-ready tagline (1-2 sentences) summarizing the topic. 
                Do not mention the speaker, the user, or "the speaker discusses". Focus purely on the content.
+            3. Classify the note type as either "JOURNAL" (default, thoughts, ideas, reflections) or "TODO" (action items, tasks, things to do).
             
             Transcription:
             "$transcription"
             
             Respond in JSON format:
-            {"tags": ["Tag1", "Tag2"], "topic": "Brief summary here"}
+            {"tags": ["Tag1", "Tag2"], "topic": "Brief summary here", "type": "JOURNAL"}
         """.trimIndent()
         
         val jsonBody = JSONObject().apply {
@@ -78,7 +85,14 @@ object GptClient {
                 
                 val topic = result.optString("topic", "No summary available")
                 
-                VoiceNoteMetadata(tags, topic)
+                val typeStr = result.optString("type", "JOURNAL").uppercase()
+                val type = try {
+                    NoteType.valueOf(typeStr)
+                } catch (e: IllegalArgumentException) {
+                    NoteType.JOURNAL
+                }
+                
+                VoiceNoteMetadata(tags, topic, type)
             }
         }
     }

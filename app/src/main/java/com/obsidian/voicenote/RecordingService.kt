@@ -15,6 +15,7 @@ import android.provider.DocumentsContract
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.obsidian.voicenote.api.LinearClient
+import com.obsidian.voicenote.api.NoteType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -108,8 +109,12 @@ class RecordingService : Service() {
         
         val linearApiKey = prefs.getString("linear_api_key", "") ?: ""
         val linearTeamId = prefs.getString("linear_team_id", "") ?: ""
-        val linearProjectId = prefs.getString("linear_project_id", null)
-        val linearLabelId = prefs.getString("linear_label_id", null)
+        
+        // Defaults
+        val journalProjectId = prefs.getString("linear_journal_project_id", null)
+        val journalLabelId = prefs.getString("linear_journal_label_id", null)
+        val todoProjectId = prefs.getString("linear_todo_project_id", null)
+        val todoLabelId = prefs.getString("linear_todo_label_id", null)
 
         if (apiKey.isBlank() || folderUriStr.isBlank()) {
             broadcastStatus("Error: Setup not complete")
@@ -127,7 +132,7 @@ class RecordingService : Service() {
             
             // Check if Linear is configured
             if (linearApiKey.isNotBlank() && linearTeamId.isNotBlank()) {
-                broadcastStatus("Creating Linear Issue...")
+                broadcastStatus("Creating Linear Issue (${processed.metadata.type})...")
                 
                 val description = """
                     ${processed.transcription}
@@ -135,14 +140,21 @@ class RecordingService : Service() {
                     **Tags**: ${processed.metadata.tags.joinToString(", ")}
                 """.trimIndent()
                 
-                val labelIds = if (!linearLabelId.isNullOrBlank()) listOf(linearLabelId) else null
+                // Decide Project/Label based on classification
+                val (projectId, labelId) = if (processed.metadata.type == NoteType.TODO) {
+                    Pair(todoProjectId, todoLabelId)
+                } else {
+                    Pair(journalProjectId, journalLabelId)
+                }
+                
+                val labelIds = if (!labelId.isNullOrBlank()) listOf(labelId) else null
                 
                 val issueUrl = LinearClient.createIssue(
                     apiKey = linearApiKey,
                     teamId = linearTeamId,
                     title = processed.metadata.topic,
                     description = description,
-                    projectId = linearProjectId,
+                    projectId = projectId,
                     labelIds = labelIds
                 )
                 

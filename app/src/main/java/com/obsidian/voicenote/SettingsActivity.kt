@@ -50,8 +50,14 @@ fun SettingsScreen() {
     // Linear Settings
     var linearApiKey by remember { mutableStateOf(prefs.getString("linear_api_key", "") ?: "") }
     var selectedTeamId by remember { mutableStateOf(prefs.getString("linear_team_id", "") ?: "") }
-    var selectedProjectId by remember { mutableStateOf(prefs.getString("linear_project_id", "") ?: "") }
-    var selectedLabelId by remember { mutableStateOf(prefs.getString("linear_label_id", "") ?: "") }
+    
+    // Journal Defaults
+    var journalProjectId by remember { mutableStateOf(prefs.getString("linear_journal_project_id", "") ?: "") }
+    var journalLabelId by remember { mutableStateOf(prefs.getString("linear_journal_label_id", "") ?: "") }
+    
+    // Todo Defaults
+    var todoProjectId by remember { mutableStateOf(prefs.getString("linear_todo_project_id", "") ?: "") }
+    var todoLabelId by remember { mutableStateOf(prefs.getString("linear_todo_label_id", "") ?: "") }
     
     // Linear Data
     var teams by remember { mutableStateOf<List<LinearTeam>>(emptyList()) }
@@ -116,7 +122,7 @@ fun SettingsScreen() {
         Button(
             onClick = {
                 if (linearApiKey.isNotBlank()) {
-                    fetchStatus = "Fetching teams..."
+                    fetchStatus = "Fetching data..."
                     scope.launch {
                         try {
                             teams = LinearClient.getTeams(linearApiKey)
@@ -150,12 +156,6 @@ fun SettingsScreen() {
                             selectedTeamId = team.id
                             prefs.edit().putString("linear_team_id", team.id).apply()
                             
-                            // Reset sub-selections when team changes
-                            selectedProjectId = ""
-                            prefs.edit().putString("linear_project_id", "").apply()
-                            selectedLabelId = ""
-                            prefs.edit().putString("linear_label_id", "").apply()
-                            
                             // Fetch sub-items
                             fetchStatus = "Fetching projects/labels..."
                             scope.launch {
@@ -179,66 +179,61 @@ fun SettingsScreen() {
             }
         }
         
-        // Project Selection (Optional)
-        if (selectedTeamId.isNotBlank() && projects.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Select Project (Optional):", modifier = Modifier.align(Alignment.Start))
+        // Conditional Configurations for Journal vs Todo
+        if (selectedTeamId.isNotBlank() && projects.isNotEmpty() && labels.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(24.dp))
             
-            // "None" option
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().clickable {
-                    selectedProjectId = ""
-                    prefs.edit().putString("linear_project_id", "").apply()
-                }
-            ) {
-                RadioButton(selected = selectedProjectId.isEmpty(), onClick = { })
-                Text("None")
-            }
-
-            projects.take(10).forEach { project ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable {
-                        selectedProjectId = project.id
-                        prefs.edit().putString("linear_project_id", project.id).apply()
-                    }
-                ) {
-                    RadioButton(selected = project.id == selectedProjectId, onClick = { })
-                    Text(project.name)
-                }
-            }
-        }
-
-        // Label Selection (Optional)
-        if (selectedTeamId.isNotBlank() && labels.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Select Label (Optional):", modifier = Modifier.align(Alignment.Start))
+            Text("Journal Default Settings", style = MaterialTheme.typography.titleMedium, modifier = Modifier.align(Alignment.Start))
             
-            // "None" option
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().clickable {
-                    selectedLabelId = ""
-                    prefs.edit().putString("linear_label_id", "").apply()
+            Text("Journal Project:", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top=8.dp).align(Alignment.Start))
+            DropdownSelector(
+                items = projects,
+                selectedId = journalProjectId,
+                onSelect = { id -> 
+                    journalProjectId = id
+                    prefs.edit().putString("linear_journal_project_id", id).apply()
                 }
-            ) {
-                RadioButton(selected = selectedLabelId.isEmpty(), onClick = { })
-                Text("None")
-            }
+            )
 
-            labels.take(10).forEach { label ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable {
-                        selectedLabelId = label.id
-                        prefs.edit().putString("linear_label_id", label.id).apply()
-                    }
-                ) {
-                    RadioButton(selected = label.id == selectedLabelId, onClick = { })
-                    Text(label.name)
+            Text("Journal Label:", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top=8.dp).align(Alignment.Start))
+            DropdownSelector(
+                items = labels,
+                selectedId = journalLabelId,
+                onSelect = { id -> 
+                    journalLabelId = id
+                    prefs.edit().putString("linear_journal_label_id", id).apply()
+                },
+                isLabel = true
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text("To-Do Default Settings", style = MaterialTheme.typography.titleMedium, modifier = Modifier.align(Alignment.Start))
+            
+            Text("To-Do Project:", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top=8.dp).align(Alignment.Start))
+            DropdownSelector(
+                items = projects,
+                selectedId = todoProjectId,
+                onSelect = { id -> 
+                    todoProjectId = id
+                    prefs.edit().putString("linear_todo_project_id", id).apply()
                 }
-            }
+            )
+
+            Text("To-Do Label:", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top=8.dp).align(Alignment.Start))
+            DropdownSelector(
+                items = labels,
+                selectedId = todoLabelId,
+                onSelect = { id -> 
+                    todoLabelId = id
+                    prefs.edit().putString("linear_todo_label_id", id).apply()
+                },
+                isLabel = true
+            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
@@ -275,6 +270,72 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Save & Close")
+        }
+        
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> DropdownSelector(
+    items: List<T>,
+    selectedId: String,
+    onSelect: (String) -> Unit,
+    isLabel: Boolean = false
+) {
+    var expanded by remember { mutableStateOf(false) }
+    // Helper to get name
+    fun getName(item: T): String {
+        return when(item) {
+            is LinearProject -> item.name
+            is LinearLabel -> item.name
+            else -> ""
+        }
+    }
+    fun getId(item: T): String {
+         return when(item) {
+            is LinearProject -> item.id
+            is LinearLabel -> item.id
+            else -> ""
+        }
+    }
+
+    val selectedName = items.find { getId(it) == selectedId }?.let { getName(it) } ?: "None"
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedName,
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            modifier = Modifier.menuAnchor().fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("None") },
+                onClick = {
+                    onSelect("")
+                    expanded = false
+                }
+            )
+            items.take(20).forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(getName(item)) },
+                    onClick = {
+                        onSelect(getId(item))
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }
