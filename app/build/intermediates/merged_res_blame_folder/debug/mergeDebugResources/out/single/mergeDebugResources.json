@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.obsidian.voicenote.app-debug-45:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-47:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.obsidian.voicenote.app-debug-45:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-47:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-debug-45:/xml_data_extraction_rules.xml.flat",
+        "source": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-main-47:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-debug-45:/xml_backup_rules.xml.flat",
+        "source": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-main-47:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-debug-45:/xml_voice_note_widget_info.xml.flat",
+        "source": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-main-47:/xml/voice_note_widget_info.xml"
+    },
+    {
+        "merged": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-debug-45:/layout_widget_voice_note.xml.flat",
+        "source": "/Users/dominikfacher/.gradle/daemon/8.7/com.obsidian.voicenote.app-main-47:/layout/widget_voice_note.xml"
+    }
+]

@@ -1,0 +1,19 @@
+R_DEF: Internal format may change without notice
+local
+id widget_record_button
+layout widget_voice_note
+string api_key_hint
+string app_name
+string channel_id
+string channel_name
+string recording_notification_text
+string recording_notification_title
+string select_folder
+string settings
+string start_recording
+string stop_recording
+string widget_prompt
+style Theme.ObsiVoice
+xml backup_rules
+xml data_extraction_rules
+xml voice_note_widget_info

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="api_key_hint">OpenAI API Key</string>
+    <string name="app_name">ObsiVoice</string>
+    <string name="channel_id">recording_channel</string>
+    <string name="channel_name">Recording Status</string>
+    <string name="recording_notification_text">Tap to open app</string>
+    <string name="recording_notification_title">Recording Voice Note</string>
+    <string name="select_folder">Select Obsidian Folder</string>
+    <string name="settings">Settings</string>
+    <string name="start_recording">Record</string>
+    <string name="stop_recording">Stop</string>
+    <string name="widget_prompt">Tap to Record</string>
+    <style name="Theme.ObsiVoice" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>

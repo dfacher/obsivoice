@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.obsidian.voicenote.app-release-40:/xml_backup_rules.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-41:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.obsidian.voicenote.app-release-40:/layout_widget_voice_note.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-41:/layout/widget_voice_note.xml"
+    },
+    {
+        "merged": "com.obsidian.voicenote.app-release-40:/xml_voice_note_widget_info.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-41:/xml/voice_note_widget_info.xml"
+    },
+    {
+        "merged": "com.obsidian.voicenote.app-release-40:/xml_data_extraction_rules.xml.flat",
+        "source": "com.obsidian.voicenote.app-main-41:/xml/data_extraction_rules.xml"
+    }
+]
